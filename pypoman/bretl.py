@@ -267,7 +267,25 @@ def compute_polygon(lp, max_iter=1000, solver=GLPK_IF_AVAILABLE,
             init_vertices.append(z)
         max_iter -= 1
     if len(init_vertices) < 3:
-        raise Exception("problem is not linearly feasible")
+        print "problem is not linearly feasible. Trying again with random initialization."
+        theta = pi * random()
+        print 'theta is ', theta
+        init_vertices = [optimize_angle(theta, lp, solver)]
+        step = 2. * pi / 3.
+        while len(init_vertices) < 3 and max_iter >= 0:
+            theta += step
+            if theta >= 2. * pi:
+                step *= 0.25 + 0.5 * random()
+                theta += step - 2. * pi
+            z = optimize_angle(theta, lp, solver)
+            if all([norm(z - z0) > 1e-5 for z0 in init_vertices]):
+                init_vertices.append(z)
+            max_iter -= 1
+
+        if len(init_vertices) < 3:
+            print "problem is not linearly feasible"
+            return False
+
     v0 = Vertex(init_vertices[0])
     v1 = Vertex(init_vertices[1])
     v2 = Vertex(init_vertices[2])

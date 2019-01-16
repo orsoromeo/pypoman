@@ -217,9 +217,13 @@ def project_polytope_bretl(proj, ineq, eq, max_radius=1e5, max_iter=1000,
 
     lp_obj = cvxopt.matrix(zeros(A.shape[1] + 2))
     lp = lp_obj, A_ext, b_ext, C_ext, d_ext
-    polygon = bretl_compute_polygon(lp, max_iter=max_iter,
-                                    init_angle=init_angle)
-    polygon.sort_vertices()
-    vertices_list = polygon.export_vertices()
-    vertices = [array([v.x, v.y]) for v in vertices_list]
-    return vertices
+
+    polygon = bretl_compute_polygon(lp, max_iter=max_iter, init_angle=init_angle)
+    if polygon is False:
+        print 'Could not initialize the vertices of the polygon'
+        return False
+    else:
+        polygon.sort_vertices()
+        vertices_list = polygon.export_vertices()
+        vertices = [array([v.x, v.y]) for v in vertices_list]
+        return vertices
